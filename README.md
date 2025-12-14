@@ -85,6 +85,7 @@ make -j
 ## References
 
 - [Simon Boehm: How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM)
+- [wangzyon/NVIDIA_SGEMM_PRACTICE](https://github.com/wangzyon/NVIDIA_SGEMM_PRACTICE)
 - Programming Massively Parallel Processors (Hwu, Kirk & Wen)
 - NVIDIA CUDA C++ Programming Guide:
   - [Thread Hierarchy (§5.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#thread-hierarchy)
