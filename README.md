@@ -1,8 +1,6 @@
-# High-Performance Tiled Matrix Multiplication
+# CUDA SGEMM Optimization
 
-A deep dive into GPU optimization: 13 progressively optimized CUDA kernels, from naive to CUTLASS-style.
-
-Based on [Simon Boehm's excellent worklog](https://siboehm.com/articles/22/CUDA-MMM).
+13 CUDA SGEMM kernels demonstrating progressive optimization from naive implementation to warp-level tiling
 
 ## Goal
 
