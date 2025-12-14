@@ -90,19 +90,19 @@ ncu --set full -o profile ./benchmark_all
 
 ## Lessons learned
 
-### Memory & Access Patterns
+### Memory & access patterns
 
 1. Why is coalesced memory access important? What happens at the hardware level when it's not coalesced?
 2. What's the difference between global, shared, and register memory? Latency and bandwidth of each?
 3. Why does accessing `B[k * N + col]` in naive matmul hurt performance?
 
-### Shared Memory
+### Shared memory
 
 4. What is a bank conflict? How do you detect one? How do you fix it?
 5. Why do we need `__syncthreads()` and what happens if you forget one?
 6. How much shared memory does your GPU have per SM? Per block?
 
-### Performance Analysis
+### Performance analysis
 
 7. What is arithmetic intensity? Why does it matter for the roofline model?
 8. Is your kernel compute-bound or memory-bound? How do you tell?
@@ -114,13 +114,13 @@ ncu --set full -o profile ./benchmark_all
 11. What is occupancy? Is higher always better?
 12. How do you choose block dimensions? What are the tradeoffs?
 
-### Optimization Techniques
+### Optimization techniques
 
 13. Why does computing more results per thread improve performance?
 14. What is double buffering and why does it help?
 15. Why are `float4` loads faster than four `float` loads?
 
-### Systems Thinking
+### Systems thinking
 
 16. Given a new kernel that's slow, what's your debugging process?
 17. How would you estimate the theoretical peak performance of a matmul on a given GPU?
