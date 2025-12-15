@@ -13,10 +13,10 @@ Achieve **70%+ of cuBLAS SGEMM performance** through iterative optimization.
 | V0 | Naive | Baseline, each thread computes one element |
 | V1 | GMEM Coalescing | Reorder thread indexing for coalesced access |
 | V2 | Shared Memory Tiling | Cache tiles in SMEM, reduce GMEM traffic |
-| V3 | 1D Blocktiling | Each thread computes TM elements (column) |
-| V4 | 2D Blocktiling | Each thread computes TM×TN elements |
-| V5 | Vectorized Loads | float4 for 128-bit memory transactions |
-| V6 | Bank Conflict Avoidance | SMEM padding/swizzling |
+| V3 | Bank Conflict Avoidance | SMEM padding/swizzling |
+| V4 | 1D Blocktiling | Each thread computes TM elements (column) |
+| V5 | 2D Blocktiling | Each thread computes TM×TN elements |
+| V6 | Vectorized Loads | float4 for 128-bit memory transactions |
 | V7 | Double Buffering | Overlap compute with memory loads |
 | V8 | Autotuning | Parameter search (BM, BN, BK, TM, TN) |
 | V9 | Warptiling | Warp-level scheduling, register cache locality |
