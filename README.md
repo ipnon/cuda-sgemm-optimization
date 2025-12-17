@@ -87,9 +87,22 @@ make -j
 - [Simon Boehm: How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM) ([HN discussion](https://news.ycombinator.com/item?id=34256392))
 - [wangzyon/NVIDIA_SGEMM_PRACTICE](https://github.com/wangzyon/NVIDIA_SGEMM_PRACTICE)
 - Programming Massively Parallel Processors (Hwu, Kirk & Wen)
-- NVIDIA CUDA C++ Programming Guide:
-  - [Thread Hierarchy (§5.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#thread-hierarchy)
-  - [Memory Hierarchy (§5.3)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-hierarchy)
-  - [SIMT Architecture (§7.1)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#simt-architecture)
-  - [Shared Memory (§6.2.4)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory)
-  - [Device Memory Accesses (§8.3.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-memory-accesses)
+
+### CUDA C++ Programming Guide — Reading order
+
+Read these sections before implementing each kernel:
+
+| Kernel | Read Before |
+|--------|-------------|
+| V0 | [Thread Hierarchy (§5.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#thread-hierarchy) |
+| V1 | [Device Memory Accesses (§8.3.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-memory-accesses) |
+| V2 | [Shared Memory (§6.2.4)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory), [Memory Hierarchy (§5.3)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-hierarchy) |
+| V3 | [Shared Memory (§6.2.4)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory) — bank conflicts |
+| V4–V5 | [Maximize Utilization (§8.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#maximize-utilization) |
+| V6 | [Device Memory Accesses (§8.3.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-memory-accesses) — size and alignment |
+| V7 | [Asynchronous Concurrent Execution (§5.5)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#asynchronous-concurrent-execution) |
+| V8 | [Execution Configuration (§8.4)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#execution-configuration-optimizations) |
+| V9 | [SIMT Architecture (§7.1)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#simt-architecture) |
+| V10 | [Warp Shuffle Functions (§9.7.8)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#warp-shuffle-functions) |
+| V11 | [Instruction Level Parallelism (§8.2.2.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#instruction-level-parallelism) |
+| V12 | [Memory Hierarchy (§5.3)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-hierarchy) |
