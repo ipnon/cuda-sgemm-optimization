@@ -44,6 +44,30 @@ make -j
 ./benchmark_all
 ```
 
+## Roofline analysis
+
+Plot each kernel version on the roofline to understand optimization progress:
+
+| Kernel | Arithmetic Intensity (FLOP/byte) | Bound |
+|--------|----------------------------------|-------|
+| V0 | ~0.25 | Memory |
+| V2 | ~2.0 | Memory |
+| V5 | ~8.0 | Transitioning |
+| V9+ | ~16+ | Compute |
+
+### Deliverables
+
+- [ ] Build roofline model for your GPU (compute FLOPS ceiling, memory bandwidth ceiling)
+- [ ] Plot each kernel version on the roofline
+- [ ] Calculate arithmetic intensity for each version
+- [ ] Predict theoretical peak before implementing, compare to actual
+- [ ] Create reusable script/spreadsheet for future kernel analysis
+
+### References
+
+- [Roofline: An Insightful Visual Performance Model (Williams et al.)](https://people.eecs.berkeley.edu/~kubitron/cs252/handouts/papers/RooflineVyworky.pdf)
+- Nsight Compute roofline analysis documentation
+
 ## Lessons learned
 
 ### Memory & access patterns
