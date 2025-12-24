@@ -2,7 +2,6 @@
 #include <cuda_runtime.h>
 
 #include <common.cuh>
-#include <cstdio>
 
 template <int BM, int BN, int BK, int TM>
 __global__ void matmul_v4_blocktile_1d(float* A, float* B, float* C, int N) {
