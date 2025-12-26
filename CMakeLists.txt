@@ -10,7 +10,7 @@ find_package(CUDAToolkit REQUIRED)
 # Interface library for shared settings (include path + cuRAND)
 add_library(common INTERFACE)
 target_include_directories(common INTERFACE include)
-target_link_libraries(common INTERFACE CUDA::curand)
+target_link_libraries(common INTERFACE CUDA::curand CUDA::cublas)
 
 # Kernel executables
 set(KERNELS

@@ -57,6 +57,6 @@ int main() {
   constexpr int BN = 64;
   constexpr int BK = 8;
   constexpr int TM = 8;
-  run_matmul_test_blocktiled<BM, BN, BK, TM>(
+  run_matmul_benchmark_blocktiled<BM, BN, BK, TM>(
       matmul_v4_blocktile_1d<BM, BN, BK, TM>, 1024);
 }

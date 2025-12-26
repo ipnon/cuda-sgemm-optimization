@@ -58,7 +58,7 @@ int main() {
   constexpr int kBlockK = 8;
   constexpr int kThreadM = 8;
   constexpr int kThreadN = 8;
-  run_matmul_test_blocktiled_2d<kBlockM, kBlockN, kBlockK, kThreadM, kThreadN>(
+  run_matmul_benchmark_blocktiled_2d<kBlockM, kBlockN, kBlockK, kThreadM, kThreadN>(
       matmul_v5_blocktile_2d<kBlockM, kBlockN, kBlockK, kThreadM, kThreadN>,
       1024);
 }
