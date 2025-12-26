@@ -199,6 +199,6 @@ int main() {
     printf("\n");
   }
 
-  printf("\nTarget: V6 >= 70%% of cuBLAS across all sizes\n");
+  printf("\nTarget: >= 70%% of cuBLAS across all sizes\n");
   return 0;
 }
