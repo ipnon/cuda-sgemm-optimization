@@ -120,16 +120,16 @@ Read these sections before implementing each kernel:
 
 | Kernel | Read Before |
 |--------|-------------|
-| V0 | [Thread Hierarchy (§2.2.2)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#thread-hierarchy) |
-| V1 | [Coalesced Global Memory Access (§2.2.4.1)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#coalesced-global-memory-access) |
-| V2 | [Shared Memory (§2.2.3.2)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#shared-memory), [GPU Memory (§1.2.3)](https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction-to-cuda/programming-model.html#gpu-memory) |
-| V3 | [Shared Memory Access Patterns (§2.2.4.2)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#shared-memory-access-patterns) |
-| V4–V5 | [Kernel Launch and Occupancy (§2.2.7)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#kernel-launch-and-occupancy) |
-| V6 | [Coalesced Global Memory Access (§2.2.4.1)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#coalesced-global-memory-access) — size and alignment |
-| V7 | [Asynchronous Execution (§2.3)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/asynchronous-execution.html) |
-| V8 | [Pipelines (§4.10)](https://docs.nvidia.com/cuda/cuda-programming-guide/04-cuda-features/pipelines.html) |
-| V9 | [SIMT Execution Model (§3.2.2.1)](https://docs.nvidia.com/cuda/cuda-programming-guide/03-advanced/advanced-kernel-programming.html#simt-execution-model) |
-| V10 | [Warp Shuffle Functions (§5.4.6.5)](https://docs.nvidia.com/cuda/cuda-programming-guide/05-technical-appendices/c-c-language-extensions.html#warp-shuffle-functions) |
-| V11 | [L2 Cache Control (§4.13)](https://docs.nvidia.com/cuda/cuda-programming-guide/04-cuda-features/l2-cache-control.html) |
-| V12 | [Memory Fence Functions (§5.4.4.3)](https://docs.nvidia.com/cuda/cuda-programming-guide/05-technical-appendices/c-c-language-extensions.html#memory-fence-functions) |
-| V13 | [Kernel Launch and Occupancy (§2.2.7)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#kernel-launch-and-occupancy) |
+| V0 | Thread Hierarchy (§2.2.2) |
+| V1 | Coalesced Global Memory Access (§2.2.4.1) |
+| V2 | Shared Memory (§2.2.3.2), GPU Memory (§1.2.3) |
+| V3 | Shared Memory Access Patterns (§2.2.4.2) |
+| V4–V5 | Kernel Launch and Occupancy (§2.2.7) |
+| V6 | Coalesced Global Memory Access (§2.2.4.1) — size and alignment |
+| V7 | Asynchronous Execution (§2.3) |
+| V8 | Pipelines (§4.10) |
+| V9 | SIMT Execution Model (§3.2.2.1) |
+| V10 | Warp Shuffle Functions (§5.4.6.5) |
+| V11 | L2 Cache Control (§4.13) |
+| V12 | Memory Fence Functions (§5.4.4.3) |
+| V13 | Kernel Launch and Occupancy (§2.2.7) |
