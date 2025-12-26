@@ -22,11 +22,12 @@ set(KERNELS
     v5_blocktile_2d
     v6_vectorized
     v7_double_buffer
-    v8_autotuned
+    v8_register_prefetch
     v9_warptiled
     v10_warp_shuffle
-    v11_k_reorder
-    v12_streaming
+    v11_swizzle
+    v12_splitk
+    v13_autotuned
 )
 
 foreach(kernel ${KERNELS})
