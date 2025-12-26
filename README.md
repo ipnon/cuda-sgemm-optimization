@@ -120,16 +120,16 @@ Read these sections before implementing each kernel:
 
 | Kernel | Read Before |
 |--------|-------------|
-| V0 | [Thread Hierarchy (§5.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#thread-hierarchy) |
-| V1 | [Device Memory Accesses (§8.3.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-memory-accesses) |
-| V2 | [Shared Memory (§6.2.4)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory), [Memory Hierarchy (§5.3)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-hierarchy) |
-| V3 | [Shared Memory (§6.2.4)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory) — bank conflicts |
-| V4–V5 | [Maximize Utilization (§8.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#maximize-utilization) |
-| V6 | [Device Memory Accesses (§8.3.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-memory-accesses) — size and alignment |
-| V7 | [Asynchronous Concurrent Execution (§5.5)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#asynchronous-concurrent-execution) |
-| V8 | [Instruction Level Parallelism (§8.2.2.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#instruction-level-parallelism) |
-| V9 | [SIMT Architecture (§7.1)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#simt-architecture) |
-| V10 | [Warp Shuffle Functions (§9.7.8)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#warp-shuffle-functions) |
-| V11 | [Memory Hierarchy (§5.3)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-hierarchy) — L2 cache |
-| V12 | [Memory Fence Functions (§9.7.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-fence-functions) |
-| V13 | [Execution Configuration (§8.4)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#execution-configuration-optimizations) |
+| V0 | [Thread Hierarchy (§2.2.2)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#thread-hierarchy) |
+| V1 | [Coalesced Global Memory Access (§2.2.4.1)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#coalesced-global-memory-access) |
+| V2 | [Shared Memory (§2.2.3.2)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#shared-memory), [GPU Memory (§1.2.3)](https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction-to-cuda/programming-model.html#gpu-memory) |
+| V3 | [Shared Memory Access Patterns (§2.2.4.2)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#shared-memory-access-patterns) |
+| V4–V5 | [Kernel Launch and Occupancy (§2.2.7)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#kernel-launch-and-occupancy) |
+| V6 | [Coalesced Global Memory Access (§2.2.4.1)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#coalesced-global-memory-access) — size and alignment |
+| V7 | [Asynchronous Execution (§2.3)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/asynchronous-execution.html) |
+| V8 | [Pipelines (§4.10)](https://docs.nvidia.com/cuda/cuda-programming-guide/04-cuda-features/pipelines.html) |
+| V9 | [SIMT Execution Model (§3.2.2.1)](https://docs.nvidia.com/cuda/cuda-programming-guide/03-advanced/advanced-kernel-programming.html#simt-execution-model) |
+| V10 | [Warp Shuffle Functions (§5.4.6.5)](https://docs.nvidia.com/cuda/cuda-programming-guide/05-technical-appendices/c-c-language-extensions.html#warp-shuffle-functions) |
+| V11 | [L2 Cache Control (§4.13)](https://docs.nvidia.com/cuda/cuda-programming-guide/04-cuda-features/l2-cache-control.html) |
+| V12 | [Memory Fence Functions (§5.4.4.3)](https://docs.nvidia.com/cuda/cuda-programming-guide/05-technical-appendices/c-c-language-extensions.html#memory-fence-functions) |
+| V13 | [Kernel Launch and Occupancy (§2.2.7)](https://docs.nvidia.com/cuda/cuda-programming-guide/02-intro-to-cuda-c/writing-cuda-simt-kernels.html#kernel-launch-and-occupancy) |
