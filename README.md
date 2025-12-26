@@ -1,6 +1,6 @@
 # CUDA SGEMM Optimization
 
-13 CUDA SGEMM kernels demonstrating progressive optimization from naive implementation to warp-level tiling
+14 CUDA SGEMM kernels demonstrating progressive optimization following the CUTLASS hierarchical GEMM structure
 
 ## Goal
 
@@ -8,21 +8,22 @@ Achieve **70%+ of cuBLAS SGEMM performance** through iterative optimization.
 
 ## Kernel progression
 
-| Version | Optimization | Key Concept |
-|---------|--------------|-------------|
-| V0 | Naive | Baseline, each thread computes one element |
-| V1 | GMEM Coalescing | Reorder thread indexing for coalesced access |
-| V2 | Shared Memory Tiling | Cache tiles in SMEM, reduce GMEM traffic |
-| V3 | Bank Conflict Avoidance | SMEM padding/swizzling |
-| V4 | 1D Blocktiling | Each thread computes TM elements (column) |
-| V5 | 2D Blocktiling | Each thread computes TM×TN elements |
-| V6 | Vectorized Loads | float4 for 128-bit memory transactions |
-| V7 | Double Buffering | Overlap compute with memory loads |
-| V8 | Autotuning | Parameter search (BM, BN, BK, TM, TN) |
-| V9 | Warptiling | Warp-level scheduling, register cache locality |
-| V10 | Warp Shuffles | `__shfl_sync` to exchange registers within warp |
-| V11 | K-Loop Reordering | CUTLASS-style outermost k-loop |
-| V12 | 2-Tile Streaming | Stream one matrix from GMEM, reduce SMEM pressure |
+| Phase | Version | Optimization | Key Concept |
+|-------|---------|--------------|-------------|
+| **Basics** | V0 | Naive | Baseline, each thread computes one element |
+| | V1 | GMEM Coalescing | Reorder thread indexing for coalesced access |
+| | V2 | Shared Memory Tiling | Cache tiles in SMEM, reduce GMEM traffic |
+| | V3 | Bank Conflict Avoidance | SMEM padding to avoid bank conflicts |
+| **Thread-level** | V4 | 1D Blocktiling | Each thread computes TM elements (column) |
+| | V5 | 2D Blocktiling | Each thread computes TM×TN elements |
+| | V6 | Vectorized Loads | float4 for 128-bit memory transactions |
+| **Pipelining** | V7 | SMEM Double Buffering | Overlap GMEM loads with compute |
+| | V8 | Register Prefetch | Warp fragment double buffering |
+| **Warp-level** | V9 | Warptiling | Warp-level GEMM, register cache locality |
+| | V10 | Warp Shuffles | `__shfl_sync` to exchange registers within warp |
+| **Scheduling** | V11 | Threadblock Swizzle | L2 cache locality via CTA reordering |
+| | V12 | Split-K | Parallelize reduction across threadblocks |
+| **Tuning** | V13 | Autotuning | Parameter search (BM, BN, BK, TM, TN) |
 
 ## Building
 
@@ -126,8 +127,9 @@ Read these sections before implementing each kernel:
 | V4–V5 | [Maximize Utilization (§8.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#maximize-utilization) |
 | V6 | [Device Memory Accesses (§8.3.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-memory-accesses) — size and alignment |
 | V7 | [Asynchronous Concurrent Execution (§5.5)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#asynchronous-concurrent-execution) |
-| V8 | [Execution Configuration (§8.4)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#execution-configuration-optimizations) |
+| V8 | [Instruction Level Parallelism (§8.2.2.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#instruction-level-parallelism) |
 | V9 | [SIMT Architecture (§7.1)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#simt-architecture) |
 | V10 | [Warp Shuffle Functions (§9.7.8)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#warp-shuffle-functions) |
-| V11 | [Instruction Level Parallelism (§8.2.2.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#instruction-level-parallelism) |
-| V12 | [Memory Hierarchy (§5.3)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-hierarchy) |
+| V11 | [Memory Hierarchy (§5.3)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-hierarchy) — L2 cache |
+| V12 | [Memory Fence Functions (§9.7.2)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-fence-functions) |
+| V13 | [Execution Configuration (§8.4)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#execution-configuration-optimizations) |
