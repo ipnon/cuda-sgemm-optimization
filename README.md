@@ -47,14 +47,24 @@ make -j
 
 ## Roofline analysis
 
-Plot each kernel version on the roofline to understand optimization progress:
+Plot each kernel on the roofline to visualize optimization progress:
 
-| Kernel | Arithmetic Intensity (FLOP/byte) | Bound |
-|--------|----------------------------------|-------|
-| V0 | ~0.25 | Memory |
-| V2 | ~2.0 | Memory |
-| V5 | ~8.0 | Transitioning |
-| V9+ | ~16+ | Compute |
+| Phase | Kernel | Optimization | AI (FLOP/byte) | Bound |
+|-------|--------|--------------|----------------|-------|
+| Basics | V0 | Naive | ~0.25 | Memory |
+| | V1 | Coalescing | ~0.25 | Memory |
+| | V2 | SMEM tiling | ~2.0 | Memory |
+| | V3 | Bank conflicts | ~2.0 | Memory |
+| Thread | V4 | 1D blocktile | ~4.0 | Memory |
+| | V5 | 2D blocktile | ~8.0 | Transitioning |
+| | V6 | Vectorized | ~8.0 | Transitioning |
+| Pipeline | V7 | SMEM double buffer | ~10.0 | Transitioning |
+| | V8 | Register prefetch | ~12.0 | Transitioning |
+| Warp | V9 | Warptiling | ~16.0 | Compute |
+| | V10 | Warp shuffles | ~16.0 | Compute |
+| Sched | V11 | Swizzle | ~16.0 | Compute |
+| | V12 | Split-K | ~16.0 | Compute |
+| Tune | V13 | Autotuning | ~16.0+ | Compute |
 
 ### Deliverables
 
@@ -64,16 +74,13 @@ Plot each kernel version on the roofline to understand optimization progress:
 - [ ] Predict theoretical peak before implementing, compare to actual
 - [ ] Create reusable script/spreadsheet for future kernel analysis
 
-### References
-
-- [Roofline: An Insightful Visual Performance Model (Williams et al.)](https://people.eecs.berkeley.edu/~kubitron/cs252/handouts/papers/RooflineVyNoYellow.pdf)
-- Nsight Compute roofline analysis documentation
-
 ## References
 
 - [Simon Boehm: How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM) ([HN discussion](https://news.ycombinator.com/item?id=34256392))
 - [wangzyon/NVIDIA_SGEMM_PRACTICE](https://github.com/wangzyon/NVIDIA_SGEMM_PRACTICE)
 - [CUTLASS: Efficient GEMM in CUDA](https://github.com/NVIDIA/cutlass/blob/main/media/docs/cpp/efficient_gemm.md)
+- [Roofline: An Insightful Visual Performance Model (Williams et al.)](https://people.eecs.berkeley.edu/~kubitron/cs252/handouts/papers/RooflineVyNoYellow.pdf)
+- Nsight Compute roofline analysis documentation
 - Programming Massively Parallel Processors (Hwu, Kirk & Wen)
 
 ### [CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/index.html) — Reading order
