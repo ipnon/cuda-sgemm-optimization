@@ -115,10 +115,25 @@ std::vector<KernelConfig> make_kernels() {
       dim3 blocks(n / BN, n / BM);
       return benchmark_kernel(matmul_v6_vectorized<BM, BN, BK, TM, TN>, A, B, C, n, threads, blocks);
     }},
-    {"V7", [](float* A, float* B, float* C, int n) {
+    {"V7s1", [](float* A, float* B, float* C, int n) {
       dim3 threads((BM / TM) * (BN / TN));
       dim3 blocks(n / BN, n / BM);
-      return benchmark_kernel(matmul_v7_swizzle<BM, BN, BK, TM, TN>, A, B, C, n, threads, blocks);
+      return benchmark_kernel(matmul_v7_swizzle<BM, BN, BK, TM, TN, 1>, A, B, C, n, threads, blocks);
+    }},
+    {"V7s2", [](float* A, float* B, float* C, int n) {
+      dim3 threads((BM / TM) * (BN / TN));
+      dim3 blocks(n / BN, n / BM);
+      return benchmark_kernel(matmul_v7_swizzle<BM, BN, BK, TM, TN, 2>, A, B, C, n, threads, blocks);
+    }},
+    {"V7s4", [](float* A, float* B, float* C, int n) {
+      dim3 threads((BM / TM) * (BN / TN));
+      dim3 blocks(n / BN, n / BM);
+      return benchmark_kernel(matmul_v7_swizzle<BM, BN, BK, TM, TN, 4>, A, B, C, n, threads, blocks);
+    }},
+    {"V7s8", [](float* A, float* B, float* C, int n) {
+      dim3 threads((BM / TM) * (BN / TN));
+      dim3 blocks(n / BN, n / BM);
+      return benchmark_kernel(matmul_v7_swizzle<BM, BN, BK, TM, TN, 8>, A, B, C, n, threads, blocks);
     }},
   };
 }

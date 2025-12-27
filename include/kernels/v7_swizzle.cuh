@@ -18,7 +18,7 @@ __device__ void swizzle_block_idx(int num_blocks_n, int& bm, int& bn) {
   bn = (raw_bn ^ (bm % kSwizzle)) % num_blocks_n;
 }
 
-template <int kBlockM, int kBlockN, int kBlockK, int kThreadM, int kThreadN>
+template <int kBlockM, int kBlockN, int kBlockK, int kThreadM, int kThreadN, int kSwizzle = 4>
 __global__ void matmul_v7_swizzle(float* A, float* B, float* C, int N) {
   __shared__ float smem_A[kBlockM][kBlockK + 1];
   __shared__ float smem_B[kBlockK][kBlockN + 1];
@@ -27,7 +27,7 @@ __global__ void matmul_v7_swizzle(float* A, float* B, float* C, int N) {
   // XOR swizzle the block coordinates
   int bm;
   int bn;
-  swizzle_block_idx(N / kBlockN, bm, bn);
+  swizzle_block_idx<kSwizzle>(N / kBlockN, bm, bn);
 
   int tid = threadIdx.x;
   int thread_idx_n = tid % (kBlockN / kThreadN);
