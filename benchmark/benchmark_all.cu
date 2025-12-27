@@ -170,17 +170,52 @@ int main() {
   printf("==========================\n");
   printf("GPU: %s (%.1f TFLOPS FP32 peak)\n\n", prop.name, peak_tflops);
 
-  // Collect all results first
-  std::vector<std::vector<float>> results(kernels.size() + 1);  // +1 for cuBLAS
+  // Allocate matrices for largest size
+  int max_n = sizes.back();
+  float *A, *B, *C;
+  cudaMalloc(&A, max_n * max_n * sizeof(float));
+  cudaMalloc(&B, max_n * max_n * sizeof(float));
+  cudaMalloc(&C, max_n * max_n * sizeof(float));
+
+  // Storage for results (for % of cuBLAS table at the end)
+  std::vector<std::vector<float>> results(kernels.size() + 1);
   for (auto& row : results) row.resize(sizes.size());
 
+  // Print header
+  printf("GFLOPS:\n");
+  printf("%-8s", "Kernel");
+  for (int n : sizes) printf(" | %6d", n);
+  printf("\n");
+  printf("--------");
+  for (size_t i = 0; i < sizes.size(); i++) printf("-|-------");
+  printf("\n");
+  fflush(stdout);
+
+  // Benchmark and print each kernel row as we go
+  for (size_t ki = 0; ki < kernels.size(); ki++) {
+    printf("%-8s", kernels[ki].name.c_str());
+    fflush(stdout);
+    for (size_t si = 0; si < sizes.size(); si++) {
+      int n = sizes[si];
+      curandGenerator_t gen;
+      curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
+      curandSetPseudoRandomGeneratorSeed(gen, 42);
+      curandGenerateUniform(gen, A, n * n);
+      curandGenerateUniform(gen, B, n * n);
+      curandDestroyGenerator(gen);
+
+      results[ki][si] = kernels[ki].run(A, B, C, n);
+      printf(" | %6.0f", results[ki][si]);
+      fflush(stdout);
+    }
+    printf("\n");
+  }
+
+  // cuBLAS row
+  printf("%-8s", "cuBLAS");
+  fflush(stdout);
   for (size_t si = 0; si < sizes.size(); si++) {
     int n = sizes[si];
-    float *A, *B, *C;
-    cudaMalloc(&A, n * n * sizeof(float));
-    cudaMalloc(&B, n * n * sizeof(float));
-    cudaMalloc(&C, n * n * sizeof(float));
-
     curandGenerator_t gen;
     curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
     curandSetPseudoRandomGeneratorSeed(gen, 42);
@@ -188,38 +223,15 @@ int main() {
     curandGenerateUniform(gen, B, n * n);
     curandDestroyGenerator(gen);
 
-    for (size_t ki = 0; ki < kernels.size(); ki++) {
-      results[ki][si] = kernels[ki].run(A, B, C, n);
-    }
     results[kernels.size()][si] = benchmark_cublas(A, B, C, n);
-
-    cudaFree(A);
-    cudaFree(B);
-    cudaFree(C);
-  }
-
-  // Print GFLOPS table (kernels as rows, sizes as columns)
-  printf("GFLOPS:\n");
-  printf("%-8s", "Kernel");
-  for (int n : sizes) printf(" | %6d", n);
-  printf("\n");
-
-  printf("--------");
-  for (size_t i = 0; i < sizes.size(); i++) printf("-|-------");
-  printf("\n");
-
-  for (size_t ki = 0; ki < kernels.size(); ki++) {
-    printf("%-8s", kernels[ki].name.c_str());
-    for (size_t si = 0; si < sizes.size(); si++) {
-      printf(" | %6.0f", results[ki][si]);
-    }
-    printf("\n");
-  }
-  printf("%-8s", "cuBLAS");
-  for (size_t si = 0; si < sizes.size(); si++) {
     printf(" | %6.0f", results[kernels.size()][si]);
+    fflush(stdout);
   }
   printf("\n");
+
+  cudaFree(A);
+  cudaFree(B);
+  cudaFree(C);
 
   // Print % of cuBLAS table
   printf("\n%% of cuBLAS:\n");
