@@ -21,6 +21,7 @@ set(KERNELS
     v4_blocktile_1d
     v5_blocktile_2d
     v6_vectorized
+    v7_swizzle
 )
 
 foreach(kernel ${KERNELS})
