@@ -28,7 +28,7 @@ constexpr int BM = 64, BN = 64, BK = 8, TM = 8, TN = 8;
 
 // Benchmark infrastructure
 float benchmark_cublas(float* A, float* B, float* C, int n,
-                       int warmup = 3, int iters = 10) {
+                       int warmup = 10, int iters = 20) {
   cublasHandle_t handle;
   cublasCreate(&handle);
   float alpha = 1.0f, beta = 0.0f;
@@ -57,7 +57,7 @@ float benchmark_cublas(float* A, float* B, float* C, int n,
 template <typename KernelFunc>
 float benchmark_kernel(KernelFunc kernel, float* A, float* B, float* C,
                        int n, dim3 threads, dim3 blocks,
-                       int warmup = 3, int iters = 10) {
+                       int warmup = 10, int iters = 20) {
   for (int i = 0; i < warmup; i++)
     kernel<<<blocks, threads>>>(A, B, C, n);
   cudaDeviceSynchronize();
@@ -168,7 +168,29 @@ int main() {
 
   printf("\nCUDA SGEMM Benchmark Suite\n");
   printf("==========================\n");
-  printf("GPU: %s (%.1f TFLOPS FP32 peak)\n\n", prop.name, peak_tflops);
+  printf("GPU: %s (%.1f TFLOPS FP32 peak)\n", prop.name, peak_tflops);
+
+  // Warm up GPU to stabilize clock frequency
+  printf("Warming up GPU...\n");
+  {
+    float *warm_A, *warm_B, *warm_C;
+    int warm_n = 4096;
+    cudaMalloc(&warm_A, warm_n * warm_n * sizeof(float));
+    cudaMalloc(&warm_B, warm_n * warm_n * sizeof(float));
+    cudaMalloc(&warm_C, warm_n * warm_n * sizeof(float));
+    cublasHandle_t handle;
+    cublasCreate(&handle);
+    float alpha = 1.0f, beta = 0.0f;
+    for (int i = 0; i < 50; i++)
+      cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, warm_n, warm_n, warm_n,
+                  &alpha, warm_A, warm_n, warm_B, warm_n, &beta, warm_C, warm_n);
+    cudaDeviceSynchronize();
+    cublasDestroy(handle);
+    cudaFree(warm_A);
+    cudaFree(warm_B);
+    cudaFree(warm_C);
+  }
+  printf("\n");
 
   // Allocate matrices for largest size
   int max_n = sizes.back();
