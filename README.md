@@ -8,9 +8,7 @@ Achieve **70%+ of cuBLAS SGEMM performance** through iterative optimization.
 
 ## Kernel Progression
 
-> **Note:** Traditional tutorials order optimizations by conceptual complexity. This project
-> orders by **measured impact** using Nsight Compute profiling. After V6, profiling revealed
-> 23% potential speedup from workload imbalance—so V7 is swizzling, not pipelining.
+These kernel versions are ordered by relative complexity, but the returns are marginal, and for parameters even regressive. Benchmarking is crucial.
 
 | Phase | Version | Optimization | Key Concept |
 |-------|---------|--------------|-------------|

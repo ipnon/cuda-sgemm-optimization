@@ -17,9 +17,13 @@
 #include <kernels/v6_vectorized.cuh>
 #include <kernels/v7_swizzle.cuh>
 
-// Tile parameters
+// Tile parameters (default)
 constexpr int kBlockSize = 16;
 constexpr int BM = 64, BN = 64, BK = 8, TM = 8, TN = 8;
+
+// Autotuning configurations to test
+// Format: {BM, BN, BK, TM, TN} -> threads = (BM/TM)*(BN/TN)
+// Constraints: threads <= 1024, smem <= 48KB, vectorized loads divide evenly
 
 // Benchmark infrastructure
 float benchmark_cublas(float* A, float* B, float* C, int n,
@@ -135,11 +139,61 @@ std::vector<KernelConfig> make_kernels() {
       dim3 blocks(n / BN, n / BM);
       return benchmark_kernel(matmul_v7_swizzle<BM, BN, BK, TM, TN, 8>, A, B, C, n, threads, blocks);
     }},
+    // Autotuning: test different tile sizes with V6
+    // 64x64 (baseline, 64 threads)
+    {"64x64", [](float* A, float* B, float* C, int n) {
+      constexpr int bm=64, bn=64, bk=8, tm=8, tn=8;
+      dim3 threads((bm/tm) * (bn/tn));
+      dim3 blocks(n/bn, n/bm);
+      return benchmark_kernel(matmul_v6_vectorized<bm,bn,bk,tm,tn>, A, B, C, n, threads, blocks);
+    }},
+    // 128x64 (128 threads)
+    {"128x64", [](float* A, float* B, float* C, int n) {
+      constexpr int bm=128, bn=64, bk=8, tm=8, tn=8;
+      dim3 threads((bm/tm) * (bn/tn));
+      dim3 blocks(n/bn, n/bm);
+      return benchmark_kernel(matmul_v6_vectorized<bm,bn,bk,tm,tn>, A, B, C, n, threads, blocks);
+    }},
+    // 64x128 (128 threads)
+    {"64x128", [](float* A, float* B, float* C, int n) {
+      constexpr int bm=64, bn=128, bk=8, tm=8, tn=8;
+      dim3 threads((bm/tm) * (bn/tn));
+      dim3 blocks(n/bn, n/bm);
+      return benchmark_kernel(matmul_v6_vectorized<bm,bn,bk,tm,tn>, A, B, C, n, threads, blocks);
+    }},
+    // 128x128 (256 threads, AI=32)
+    {"128x128", [](float* A, float* B, float* C, int n) {
+      constexpr int bm=128, bn=128, bk=8, tm=8, tn=8;
+      dim3 threads((bm/tm) * (bn/tn));
+      dim3 blocks(n/bn, n/bm);
+      return benchmark_kernel(matmul_v6_vectorized<bm,bn,bk,tm,tn>, A, B, C, n, threads, blocks);
+    }},
+    // 128x128 with larger BK (256 threads)
+    {"128_k16", [](float* A, float* B, float* C, int n) {
+      constexpr int bm=128, bn=128, bk=16, tm=8, tn=8;
+      dim3 threads((bm/tm) * (bn/tn));
+      dim3 blocks(n/bn, n/bm);
+      return benchmark_kernel(matmul_v6_vectorized<bm,bn,bk,tm,tn>, A, B, C, n, threads, blocks);
+    }},
+    // 256x64 (256 threads)
+    {"256x64", [](float* A, float* B, float* C, int n) {
+      constexpr int bm=256, bn=64, bk=8, tm=8, tn=8;
+      dim3 threads((bm/tm) * (bn/tn));
+      dim3 blocks(n/bn, n/bm);
+      return benchmark_kernel(matmul_v6_vectorized<bm,bn,bk,tm,tn>, A, B, C, n, threads, blocks);
+    }},
+    // 64x256 (256 threads)
+    {"64x256", [](float* A, float* B, float* C, int n) {
+      constexpr int bm=64, bn=256, bk=8, tm=8, tn=8;
+      dim3 threads((bm/tm) * (bn/tn));
+      dim3 blocks(n/bn, n/bm);
+      return benchmark_kernel(matmul_v6_vectorized<bm,bn,bk,tm,tn>, A, B, C, n, threads, blocks);
+    }},
   };
 }
 
 int main() {
-  std::array<int, 4> sizes = {512, 1024, 2048, 4096};
+  std::array<int, 4> sizes = {1024, 2048, 4096, 8192};
   auto kernels = make_kernels();
 
   cudaDeviceProp prop;
