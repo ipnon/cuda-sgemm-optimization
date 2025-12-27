@@ -37,7 +37,7 @@ inline std::vector<KernelConfig> get_configs() {
 
 // Benchmark a single kernel config
 inline float benchmark_config(const KernelConfig& cfg, float* A, float* B, float* C,
-                              int n, int warmup = 2, int iters = 5) {
+                              int n, int warmup = 5, int iters = 10) {
     if (!cfg.valid_for(n)) return 0.0f;
 
     dim3 threads(cfg.threads());
