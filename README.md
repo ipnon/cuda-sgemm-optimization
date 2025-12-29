@@ -1,14 +1,51 @@
 # CUDA SGEMM Optimization
 
-CUDA SGEMM kernels demonstrating progressive optimization, ordered by **profiler-measured impact**.
+Progressive CUDA SGEMM optimization achieving **83% of cuBLAS** on NVIDIA A10.
 
-## Goal
+## Results (NVIDIA A10)
 
-Achieve **70%+ of cuBLAS SGEMM performance** through iterative optimization.
+**GPU:** 31.2 TFLOPS FP32 peak, 600 GB/s HBM. **Target:** ≥70% of cuBLAS.
+
+| Kernel | 4096×4096 | % cuBLAS | Optimization |
+|--------|-----------|----------|--------------|
+| V0 | 1,273 GFLOPS | 10% | Baseline (1 element/thread) |
+| V1 | 1,351 GFLOPS | 11% | Coalesced global memory access |
+| V2 | 1,746 GFLOPS | 14% | SMEM tiling (32×32) |
+| V3 | 1,713 GFLOPS | 14% | Bank conflict padding |
+| V4 | 4,365 GFLOPS | 35% | 1D blocktile (TM=8) |
+| V5 | 6,133 GFLOPS | 50% | 2D blocktile (TM=TN=8) |
+| V6 | 9,080 GFLOPS | **73%** | Vectorized float4 loads |
+| V7 | 9,052 GFLOPS | 73% | Threadblock swizzle |
+| V8 | 9,281 GFLOPS | 75% | Double buffering |
+| V8_256 | 10,235 GFLOPS | **83%** | BK=256 tile size |
+| cuBLAS | 12,390 GFLOPS | 100% | Reference |
+
+## Key Learnings
+
+### 1. Vectorization was the biggest win
+
+V5→V6 (adding `float4` loads) jumped from 50% to 73% of cuBLAS—the largest single improvement. Wide memory transactions matter more than clever scheduling.
+
+### 2. Profiler suggestions don't always match reality
+
+After V6, Nsight Compute showed:
+```
+Compute (SM) Throughput:  41%
+Memory Throughput:        68%
+SMSP Workload Imbalance:  23% potential speedup  ← Profiler's top suggestion
+```
+
+I implemented swizzling (V7) to address the 23% imbalance. **Result: no measurable gain.** The profiler identified a real inefficiency, but fixing it didn't translate to wall-clock improvement at this problem size.
+
+### 3. Tile size tuning > adding techniques
+
+V8 (double buffering) gave only 2% over V6. But V8_256 (same kernel, BK=256 instead of 64) hit 83%. Parameter tuning delivered more than the algorithmic improvement.
+
+### 4. The 80/20 rule applies
+
+V0→V6 covers the fundamentals and gets you to 73%. Everything after (swizzle, pipelining, warptiling) fights for the remaining ~10%. Know when to stop optimizing and when to reach for cuBLAS.
 
 ## Kernel Progression
-
-These kernel versions are ordered by relative complexity, but the returns are marginal, and for parameters even regressive. Benchmarking is crucial.
 
 | Phase | Version | Optimization | Key Concept |
 |-------|---------|--------------|-------------|
@@ -21,28 +58,15 @@ These kernel versions are ordered by relative complexity, but the returns are ma
 | | V6 | Vectorized Loads | float4 for 128-bit memory transactions |
 | **Scheduling** | V7 | Threadblock Swizzle | L2 cache locality via CTA reordering |
 | **Pipelining** | V8 | SMEM Double Buffering | Overlap GMEM loads with compute |
-| | V9 | Register Prefetch | Prefetch into registers during compute |
-| **Warp-level** | V10 | Warptiling | Warp-cooperative GEMM, register locality |
-| | V11 | Warp Shuffles | `__shfl_sync` to exchange data within warp |
-| **Advanced** | V12 | Split-K | Parallelize K-reduction across threadblocks |
-| | V13 | Autotuning | Parameter search (BM, BN, BK, TM, TN) |
 
-### Why Swizzle Before Pipelining?
+### Arithmetic Intensity
 
-After implementing V6, Nsight Compute profiling showed:
-
+For blocktiled GEMM with tile dimensions BM×BN:
 ```
-Compute (SM) Throughput:  41%
-Memory Throughput:        68%   ← Already decent
-SMSP Workload Imbalance:  23% potential speedup  ← Biggest bottleneck!
+AI = (BM × BN) / (2 × (BM + BN))    FLOP/byte
 ```
 
-V6 already achieves 68% memory throughput. Pipelining (double buffering) hides latency
-but won't help much when memory is already flowing well. The **workload imbalance**—some
-SMs finishing early while others are overloaded—is the real bottleneck.
-
-Swizzling reorders threadblock execution so simultaneously-running blocks share L2 cache
-data, balancing work across SMs. This directly addresses the measured bottleneck.
+V0-V3 operate at ~4 FLOP/byte (memory bound). V4+ reach 16 FLOP/byte, transitioning toward compute bound.
 
 ## Building
 
@@ -55,70 +79,20 @@ make -j
 ## Running
 
 ```bash
-# Individual kernels
-./v0_naive
-./v1_coalesced
-# ...
-
-# Full benchmark
-./benchmark_all
+./benchmark_all        # Full benchmark
+./v0_naive             # Individual kernels
+./v6_vectorized
 ```
-
-## Roofline Analysis
-
-Use `ncu --set roofline` to profile each kernel and plot on the roofline.
-
-### Arithmetic Intensity Formula
-
-For blocktiled GEMM with tile dimensions BM×BN:
-```
-AI = (BM × BN) / (2 × (BM + BN))    FLOP/byte
-```
-
-### Measured Results (NVIDIA A10)
-
-| Phase | Kernel | Optimization | AI (FLOP/byte) | Bound |
-|-------|--------|--------------|----------------|-------|
-| Basics | V0 | Naive | ~3* | Memory |
-| | V1 | Coalescing | ~3* | Memory |
-| | V2 | SMEM tiling | 4 | Memory |
-| | V3 | Bank conflicts | 4 | Memory |
-| Thread | V4 | 1D blocktile | 16 | Memory |
-| | V5 | 2D blocktile | 16 | Memory |
-| | V6 | Vectorized | 16 | Memory |
-| Sched | V7 | Swizzle | 16 | Memory |
-| Pipeline | V8 | Double buffer | 16 | Memory |
-| | V9 | Register prefetch | 16 | Transitioning |
-| Warp | V10 | Warptiling | 16+ | Compute |
-| | V11 | Warp shuffles | 16+ | Compute |
-| Advanced | V12 | Split-K | 16+ | Compute |
-| | V13 | Autotuning | 16+ | Compute |
-
-*V0-V1 theoretical AI is 0.25, but L2 cache provides ~3 effective AI.
-
-**Note:** Pipelining and swizzling don't change arithmetic intensity—they improve
-how efficiently you reach the ceiling at a given AI.
-
-### Deliverables
-
-- [x] Build roofline model for your GPU (compute FLOPS ceiling, memory bandwidth ceiling)
-- [x] Plot each kernel version on the roofline (via Nsight Compute)
-- [x] Calculate arithmetic intensity for each version
-- [ ] Predict theoretical peak before implementing, compare to actual
-- [ ] Document optimization decisions based on profiler data
 
 ## References
 
-- [Simon Boehm: How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM) ([HN discussion](https://news.ycombinator.com/item?id=34256392))
+- [Simon Boehm: How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM)
 - [wangzyon/NVIDIA_SGEMM_PRACTICE](https://github.com/wangzyon/NVIDIA_SGEMM_PRACTICE)
 - [CUTLASS: Efficient GEMM in CUDA](https://github.com/NVIDIA/cutlass/blob/main/media/docs/cpp/efficient_gemm.md)
-- [Roofline: An Insightful Visual Performance Model (Williams et al.)](https://people.eecs.berkeley.edu/~kubitron/cs252/handouts/papers/RooflineVyNoYellow.pdf)
-- Nsight Compute roofline analysis documentation
+- [Roofline Model (Williams et al.)](https://people.eecs.berkeley.edu/~kubitron/cs252/handouts/papers/RooflineVyNoYellow.pdf)
 - Programming Massively Parallel Processors (Hwu, Kirk & Wen)
 
-### [CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/index.html) — Reading Order
-
-Read these sections before implementing each kernel:
+### CUDA Programming Guide — Reading Order
 
 | Kernel | Read Before |
 |--------|-------------|
@@ -130,8 +104,3 @@ Read these sections before implementing each kernel:
 | V6 | Coalesced Global Memory Access (§2.2.4.1) — size and alignment |
 | V7 | L2 Cache Control (§4.13) |
 | V8 | Asynchronous Execution (§2.3) |
-| V9 | Pipelines (§4.10) |
-| V10 | SIMT Execution Model (§3.2.2.1) |
-| V11 | Warp Shuffle Functions (§5.4.6.5) |
-| V12 | Memory Fence Functions (§5.4.4.3) |
-| V13 | Kernel Launch and Occupancy (§2.2.7) |
